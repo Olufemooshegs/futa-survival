@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>FUTA Survival</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="app">
+    <div id="game-container"></div>
+    <div id="ui-layer">
+      <div id="menu-screen" class="screen" data-visible="true">
+        <div class="menu__backdrop"></div>
+        <header class="menu__header">
+          <span class="pill">FUTA · SURVIVAL RUNNER</span>
+          <h1 class="hero">100L <span class="hero__arrow">→</span> 500L</h1>
+          <p class="menu__sub">Five years. Five hurdles. One run.</p>
+        </header>
+        <div class="menu__card">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--s4);">
+            <label class="field">
+              <span class="field__label">Name</span>
+              <input id="player-name" class="field__input" maxlength="12" placeholder="OLUFEMI" autocomplete="off" spellcheck="false" />
+            </label>
+            <label class="field">
+              <span class="field__label">Dept</span>
+              <input id="player-dept" class="field__input" maxlength="4" placeholder="CSC" autocomplete="off" spellcheck="false" />
+            </label>
+          </div>
+          <button id="btn-start" class="btn btn--primary" style="margin-top: 16px;"><span>Start run</span></button>
+        </div>
+        <footer class="menu__footer">
+          <span class="status-dot" data-state="connecting"></span>
+          <span id="conn-label">Connecting…</span>
+        </footer>
+      </div>
+
+      <div id="gameover-screen" class="screen" data-visible="false">
+        <div class="result">
+          <p class="result__eyebrow" id="result-eyebrow">RUN ENDED</p>
+          <h2 class="result__title" id="result-title">EXAM FAILED</h2>
+          <dl class="stats">
+            <div><dt>Level</dt><dd id="stat-level">—</dd></div>
+            <div><dt>Score</dt><dd id="stat-score">0</dd></div>
+          </dl>
+          <div class="result__actions">
+            <button id="btn-retry" class="btn btn--primary">Retry</button>
+            <button id="btn-menu" class="btn btn--ghost">Menu</button>
+          </div>
+        </div>
+        <aside class="board">
+          <header class="board__head">
+            <h3>Top runs</h3>
+            <span class="board__mode" id="board-mode">…</span>
+          </header>
+          <ol class="board__list" id="board-list"></ol>
+        </aside>
+      </div>
+
+      <!-- PAUSE SCREEN -->
+      <div id="pause-screen" class="screen" data-visible="false">
+        <div class="menu__backdrop"></div>
+        <div style="text-align: center; z-index: 10;">
+          <h1 class="hero" style="color: var(--text);">PAUSED</h1>
+          <p class="menu__sub">Press ESC to resume</p>
+          <button id="btn-quit" class="btn btn--ghost" style="margin: 0 auto;">Quit to Menu</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

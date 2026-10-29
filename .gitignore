@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.env.local
+.env*.local
+amplify_outputs.json
+.amplify/
+amplify/.config/
+.DS_Store
