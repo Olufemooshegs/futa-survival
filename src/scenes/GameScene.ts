@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import {
-  VIEW, GROUND_Y, PLAYER_X, PLAYER_STAND, PLAYER_SLIDE, JUMP_VELOCITY, GRAVITY,
+  VIEW, GROUND_Y, PLAYER_X, JUMP_VELOCITY, GRAVITY,
   SLIDE_MIN_MS, HANGING_BOTTOM_Y, DESPAWN_X, COLORS,
 } from '../config/theme';
 import { LEVELS, type ObstacleDef } from '../config/levels';
@@ -42,7 +42,6 @@ export class GameScene extends Phaser.Scene {
   private groundRect!: Phaser.GameObjects.Rectangle;
   private bgBuildings: Phaser.GameObjects.Container[] = [];
 
-  private hudName!: Phaser.GameObjects.Text;
   private hudLevel!: Phaser.GameObjects.Text;
   private hudScore!: Phaser.GameObjects.Text;
 
@@ -65,7 +64,8 @@ export class GameScene extends Phaser.Scene {
   }
 
   create() {
-    const g = this.make.graphics({ x: 0, y: 0, add: false });
+    // FIXED: Removed the add: false property
+    const g = this.make.graphics({ x: 0, y: 0 });
     g.fillStyle(0xFFFFFF, 1).fillRect(0, 0, 8, 8).generateTexture('dust', 8, 8);
     g.fillStyle(0xF5F1E8, 1).fillRect(0, 0, 12, 12).generateTexture('paper', 12, 12);
     g.destroy();
@@ -92,7 +92,8 @@ export class GameScene extends Phaser.Scene {
       fontFamily: 'monospace', fontSize: '12px', color: '#F2C14E', fontStyle: 'bold' 
     }).setOrigin(0.5);
 
-    this.hudName = this.add.text(24, 20, `${this.name} (${this.dept})`, { fontFamily: 'monospace', fontSize: '20px', color: '#F2C14E', fontStyle: 'bold' });
+    // FIXED: Removed the unused this.hudName property
+    this.add.text(24, 20, `${this.name} (${this.dept})`, { fontFamily: 'monospace', fontSize: '20px', color: '#F2C14E', fontStyle: 'bold' });
     this.hudLevel = this.add.text(VIEW.w / 2, 20, '100L', { fontFamily: 'monospace', fontSize: '28px', color: '#F5F1E8', fontStyle: 'bold' }).setOrigin(0.5, 0);
     this.hudScore = this.add.text(VIEW.w - 24, 20, 'SCORE 0', { fontFamily: 'monospace', fontSize: '22px', color: '#F5F1E8' }).setOrigin(1, 0);
 
@@ -191,14 +192,11 @@ export class GameScene extends Phaser.Scene {
     const lvl = LEVELS[this.levelIdx];
     const dt = delta / 1000;
 
-    // Dynamic Speed Scaling
     let currentSpeed = lvl.speed;
     if (this.levelIdx < LEVELS.length - 1 && !this.isEndless) {
       const prevMin = lvl.minScore;
       const nextMin = LEVELS[this.levelIdx + 1].minScore;
       const progress = Math.max(0, Math.min(1, (this.score - prevMin) / (nextMin - prevMin)));
-      
-      // AGGRESSIVE SCALING (0.7 instead of 0.5)
       currentSpeed = lvl.speed + (lvl.speed * 0.7 * progress); 
     } else if (this.isEndless) {
       currentSpeed = 1400 + (this.distancePx * 0.05);
@@ -209,7 +207,6 @@ export class GameScene extends Phaser.Scene {
     this.score = computeScore(this.distancePx, this.levelIdx, multiplier);
     this.hudScore.setText(`SCORE ${this.score + this.baseTotalScore}`);
 
-    // LEVEL UP / GRADUATION
     if (this.levelIdx < LEVELS.length - 1 && this.score >= LEVELS[this.levelIdx + 1].minScore) {
       this.levelIdx++;
       playClear();
@@ -230,7 +227,6 @@ export class GameScene extends Phaser.Scene {
       }
     }
 
-    // Physics
     if (!this.grounded) {
       this.vy += GRAVITY * dt;
       this.yOffset -= this.vy * dt;
@@ -253,18 +249,13 @@ export class GameScene extends Phaser.Scene {
       this.player.setAngle(0).setScale(1, 1);
     }
 
-    // Spawning (TIGHTENED FOR 400L & 500L)
     if (time > this.nextSpawnTime) {
       this.spawnObstacle(lvl);
-      
-      // Shrink gap significantly in 400L and 500L
       const speedMultiplier = this.levelIdx >= 3 ? 1.1 : 0.8; 
       const baseGap = 1600 - (currentSpeed * speedMultiplier); 
-      
       this.nextSpawnTime = time + Math.max(250, baseGap) + (Math.random() * 300);
     }
 
-    // Collisions
     const pRect = playerRect(PLAYER_X, GROUND_Y, this.sliding, this.yOffset);
     for (let i = this.obstacles.length - 1; i >= 0; i--) {
       const o = this.obstacles[i];
@@ -278,7 +269,6 @@ export class GameScene extends Phaser.Scene {
       if (overlaps(pRect, o.hitRect)) { this.die(o.container.x, o.container.y); return; }
     }
 
-    // Coins
     for (let i = this.coins.length - 1; i >= 0; i--) {
       const c = this.coins[i];
       c.container.x -= currentSpeed * dt;
