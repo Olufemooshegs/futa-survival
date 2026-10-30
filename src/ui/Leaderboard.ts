@@ -4,6 +4,7 @@ export interface LeaderboardRow {
   matricNo: string; 
   level: number; 
   score: number; 
+  runs: number; 
   ts: number 
 }
 
@@ -29,7 +30,7 @@ export function renderRows(
       <span class="row__rank">${i + 1}</span>
       <span class="row__name">${r.name} <span style="color:var(--muted);font-size:0.8em">(${r.department || 'FUTA'} #${r.matricNo || '0000'})</span></span>
       <span class="row__level">${r.level}00L</span>
-      <span class="row__score">${r.score}</span>
+      <span class="row__score">${r.score} <span style="font-size:0.7em;color:var(--muted);">(${r.runs || 1} runs)</span></span>
     `;
     container.appendChild(li);
   });

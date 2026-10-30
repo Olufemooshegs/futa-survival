@@ -16,9 +16,9 @@ export class GameScene extends Phaser.Scene {
   private dept = 'FUTA';
   private matricNo = '0000';
   private levelIdx = 0;
-  private score = 0;
+  private score = 0; // This tracks the score for the CURRENT run
   private distancePx = 0;
-  private baseTotalScore = 0;
+  private baseTotalScore = 0; // The cumulative score from previous runs
   
   private obstacles: LiveObstacle[] = [];
   private coins: LiveCoin[] = [];
@@ -93,7 +93,6 @@ export class GameScene extends Phaser.Scene {
       fontFamily: 'monospace', fontSize: '12px', color: '#F2C14E', fontStyle: 'bold' 
     }).setOrigin(0.5);
 
-    // UPDATED HUD WITH MATRIC NO
     this.add.text(24, 20, `${this.name} (${this.dept}) #${this.matricNo}`, { 
       fontFamily: 'monospace', fontSize: '20px', color: '#F2C14E', fontStyle: 'bold' 
     });
@@ -187,6 +186,7 @@ export class GameScene extends Phaser.Scene {
     this.slideHeld = true;
     if (!this.sliding) { this.sliding = true; this.slideUntil = this.time.now + SLIDE_MIN_MS; }
   }
+  
   private releaseSlide() { this.slideHeld = false; }
 
   update(time: number, delta: number) {
@@ -208,6 +208,8 @@ export class GameScene extends Phaser.Scene {
     this.distancePx += currentSpeed * dt;
     const multiplier = this.isEndless ? 10 : 1;
     this.score = computeScore(this.distancePx, this.levelIdx, multiplier);
+    
+    // Display the projected total score in the HUD so it feels continuous
     this.hudScore.setText(`SCORE ${this.score + this.baseTotalScore}`);
 
     if (this.levelIdx < LEVELS.length - 1 && this.score >= LEVELS[this.levelIdx + 1].minScore) {
@@ -328,7 +330,12 @@ export class GameScene extends Phaser.Scene {
     
     const lvl = LEVELS[this.levelIdx];
     const penalty = lvl.penalty;
-    const finalTotalScore = Math.max(0, this.baseTotalScore + this.score - penalty);
+    
+    // The score for THIS specific run (deducting the penalty)
+    const runScore = Math.max(0, this.score - penalty); 
+    
+    // Update localStorage so the player's local HUD reflects their overall progress next time
+    const finalTotalScore = Math.max(0, this.baseTotalScore + runScore);
     saveTotalScore(finalTotalScore);
 
     this.cameras.main.shake(200, 0.02);
@@ -348,17 +355,18 @@ export class GameScene extends Phaser.Scene {
       if (part.each) part.each((child: any) => { if (child.setFillStyle) child.setFillStyle(0xC0392B); });
     });
     
-    this.time.delayedCall(1200, () => this.finish(finalTotalScore));
+    // Pass runScore to the finish screen
+    this.time.delayedCall(1200, () => this.finish(runScore));
   }
 
-  private finish(finalScore: number) {
+  private finish(runScore: number) {
     this.ended = true;
     const lvl = LEVELS[this.levelIdx];
     const detail = {
       graduated: this.levelIdx >= 5,
       level: this.levelIdx + 1,
       levelTag: lvl.tag,
-      score: finalScore,
+      score: runScore, // Send the run score to the backend for averaging
       name: this.name,
       dept: this.dept,
       matricNo: this.matricNo,

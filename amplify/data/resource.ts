@@ -7,9 +7,11 @@ const schema = a.schema({
       scoreKey:   a.string().required(),
       name:       a.string().required(),
       department: a.string().required(),
-      matricNo:   a.string().required(), // <-- ADDED
+      matricNo:   a.string().required(),
       level:      a.integer().required(),
-      score:      a.integer().required(),
+      score:      a.integer().required(), // This will now be the AVERAGE score
+      totalScore: a.integer(),            // <-- ADDED
+      runs:       a.integer(),            // <-- ADDED
       ts:         a.integer().required(),
     })
     .identifier(['gameId', 'scoreKey'])
