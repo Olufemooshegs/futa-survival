@@ -20,14 +20,20 @@
           <p class="menu__sub">Five years. Five hurdles. One run.</p>
         </header>
         <div class="menu__card">
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--s4);">
+          <div style="display: grid; grid-template-columns: 1fr; gap: var(--s4);">
             <label class="field">
               <span class="field__label">Name</span>
               <input id="player-name" class="field__input" maxlength="12" placeholder="OLUFEMI" autocomplete="off" spellcheck="false" />
             </label>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--s4);">
             <label class="field">
               <span class="field__label">Dept</span>
               <input id="player-dept" class="field__input" maxlength="4" placeholder="CSC" autocomplete="off" spellcheck="false" />
+            </label>
+            <label class="field">
+              <span class="field__label">Matric No</span>
+              <input id="player-matric" class="field__input" maxlength="4" placeholder="1234" autocomplete="off" spellcheck="false" />
             </label>
           </div>
           <button id="btn-start" class="btn btn--primary" style="margin-top: 16px;"><span>Start run</span></button>

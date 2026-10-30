@@ -7,6 +7,7 @@ const schema = a.schema({
       scoreKey:   a.string().required(),
       name:       a.string().required(),
       department: a.string().required(),
+      matricNo:   a.string().required(), // <-- ADDED
       level:      a.integer().required(),
       score:      a.integer().required(),
       ts:         a.integer().required(),

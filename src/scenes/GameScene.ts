@@ -14,6 +14,7 @@ interface LiveCoin { container: Phaser.GameObjects.Container; hitRect: { x: numb
 export class GameScene extends Phaser.Scene {
   private name = 'STUDENT';
   private dept = 'FUTA';
+  private matricNo = '0000';
   private levelIdx = 0;
   private score = 0;
   private distancePx = 0;
@@ -47,9 +48,10 @@ export class GameScene extends Phaser.Scene {
 
   constructor() { super({ key: 'GameScene', active: false }); }
 
-  init(data: { name?: string; dept?: string }) {
+  init(data: { name?: string; dept?: string; matricNo?: string }) {
     this.name = (data?.name ?? 'STUDENT').toUpperCase().slice(0, 12);
     this.dept = (data?.dept ?? 'FUTA').toUpperCase().slice(0, 4);
+    this.matricNo = (data?.matricNo ?? '0000').toUpperCase().slice(0, 4);
     this.levelIdx = 0;
     this.score = 0;
     this.distancePx = 0;
@@ -64,7 +66,6 @@ export class GameScene extends Phaser.Scene {
   }
 
   create() {
-    // FIXED: Removed the add: false property
     const g = this.make.graphics({ x: 0, y: 0 });
     g.fillStyle(0xFFFFFF, 1).fillRect(0, 0, 8, 8).generateTexture('dust', 8, 8);
     g.fillStyle(0xF5F1E8, 1).fillRect(0, 0, 12, 12).generateTexture('paper', 12, 12);
@@ -92,8 +93,10 @@ export class GameScene extends Phaser.Scene {
       fontFamily: 'monospace', fontSize: '12px', color: '#F2C14E', fontStyle: 'bold' 
     }).setOrigin(0.5);
 
-    // FIXED: Removed the unused this.hudName property
-    this.add.text(24, 20, `${this.name} (${this.dept})`, { fontFamily: 'monospace', fontSize: '20px', color: '#F2C14E', fontStyle: 'bold' });
+    // UPDATED HUD WITH MATRIC NO
+    this.add.text(24, 20, `${this.name} (${this.dept}) #${this.matricNo}`, { 
+      fontFamily: 'monospace', fontSize: '20px', color: '#F2C14E', fontStyle: 'bold' 
+    });
     this.hudLevel = this.add.text(VIEW.w / 2, 20, '100L', { fontFamily: 'monospace', fontSize: '28px', color: '#F5F1E8', fontStyle: 'bold' }).setOrigin(0.5, 0);
     this.hudScore = this.add.text(VIEW.w - 24, 20, 'SCORE 0', { fontFamily: 'monospace', fontSize: '22px', color: '#F5F1E8' }).setOrigin(1, 0);
 
@@ -358,6 +361,7 @@ export class GameScene extends Phaser.Scene {
       score: finalScore,
       name: this.name,
       dept: this.dept,
+      matricNo: this.matricNo,
     };
     this.scene.pause();
     window.dispatchEvent(new CustomEvent('futa:gameover', { detail }));

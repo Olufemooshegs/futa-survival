@@ -19,18 +19,22 @@ export function mountUI(game: Phaser.Game) {
   const startGame = () => {
     const nameInput = $('player-name') as HTMLInputElement;
     const deptInput = $('player-dept') as HTMLInputElement;
+    const matricInput = $('player-matric') as HTMLInputElement;
+    
     const name = (nameInput.value.toUpperCase().trim().slice(0, 12)) || 'STUDENT';
     const dept = (deptInput.value.toUpperCase().trim().slice(0, 4)) || 'FUTA';
+    const matricNo = (matricInput.value.toUpperCase().trim().slice(0, 4)) || '0000';
     
     localStorage.setItem('futa.name', name);
     localStorage.setItem('futa.dept', dept);
+    localStorage.setItem('futa.matric', matricNo);
     
     show('menu-screen', false);
     show('gameover-screen', false);
     show('pause-screen', false);
     (document.activeElement as HTMLElement)?.blur(); 
 
-    game.scene.start('GameScene', { name, dept });
+    game.scene.start('GameScene', { name, dept, matricNo });
   };
 
   $('btn-start').addEventListener('click', startGame);
@@ -66,7 +70,6 @@ export function mountUI(game: Phaser.Game) {
       }
     }
 
-    // ESC Pause Logic
     if (e.code === 'Escape') {
       const isMenu = $('menu-screen').getAttribute('data-visible') === 'true';
       const isGameOver = $('gameover-screen').getAttribute('data-visible') === 'true';
@@ -87,7 +90,7 @@ export function mountUI(game: Phaser.Game) {
   window.addEventListener('futa:gameover', (e: any) => {
     if ($('menu-screen').getAttribute('data-visible') === 'true') return; 
 
-    const d = e.detail as { graduated: boolean; level: number; levelTag: string; score: number; name: string; dept: string; };
+    const d = e.detail as { graduated: boolean; level: number; levelTag: string; score: number; name: string; dept: string; matricNo: string; };
 
     $('gameover-screen').setAttribute('data-win', String(d.graduated));
     $('result-eyebrow').textContent = d.graduated ? 'RUN COMPLETE' : 'RUN ENDED';
@@ -100,9 +103,16 @@ export function mountUI(game: Phaser.Game) {
     setTimeout(() => { canRetry = true; }, 1000);
 
     import('../systems/api').then(({ submitScore }) => {
-      submitScore({ name: d.name, dept: d.dept, level: d.level, score: d.score, graduated: d.graduated })
-        .then(res => { if (res.top?.length) updateBoard(res.top, { name: d.name, score: d.score }); })
-        .catch(() => {});
+      submitScore({ 
+        name: d.name, 
+        dept: d.dept, 
+        matricNo: d.matricNo, 
+        level: d.level, 
+        score: d.score, 
+        graduated: d.graduated 
+      })
+      .then(res => { if (res.top?.length) updateBoard(res.top, { name: d.name, score: d.score }); })
+      .catch(() => {});
     });
 
     import('../realtime/leaderboard').then(({ startLeaderboard }) => {

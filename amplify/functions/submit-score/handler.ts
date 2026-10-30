@@ -19,11 +19,11 @@ async function getTop() {
     KeyConditionExpression: 'gameId = :g',
     ExpressionAttributeValues: marshall({ ':g': GAME }),
     ScanIndexForward: true,
-    Limit: 20, // TOP 20 NOW
+    Limit: 20,
   }));
   return (res.Items ?? []).map(i => {
     const r = unmarshall(i);
-    return { name: r.name, department: r.department, level: r.level, score: r.score, ts: r.ts };
+    return { name: r.name, department: r.department, matricNo: r.matricNo, level: r.level, score: r.score, ts: r.ts };
   });
 }
 
@@ -40,12 +40,13 @@ export const handler = async (event: any) => {
     const level = clamp(body.level, 1, 6);
     const name = String(body.name || 'STUDENT').toUpperCase().replace(/[^A-Z0-9 ]/g, '').trim().slice(0, 12) || 'STUDENT';
     const department = String(body.dept || 'FUTA').toUpperCase().replace(/[^A-Z]/g, '').trim().slice(0, 4) || 'FUTA';
+    const matricNo = String(body.matricNo || '0000').toUpperCase().replace(/[^A-Z0-9]/g, '').trim().slice(0, 4) || '0000'; // <-- ADDED
 
     const scoreKey = `${String(9999999 - score).padStart(7, '0')}#${randomUUID()}`;
 
     await ddb.send(new PutItemCommand({
       TableName: TABLE,
-      Item: marshall({ gameId: GAME, scoreKey, name, department, level, score, ts: Date.now() }),
+      Item: marshall({ gameId: GAME, scoreKey, name, department, matricNo, level, score, ts: Date.now() }), // <-- ADDED
     }));
 
     const top = await getTop();

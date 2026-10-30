@@ -1,10 +1,10 @@
-export interface ScoreRow { name: string; department: string; level: number; score: number; ts: number }
+export interface ScoreRow { name: string; department: string; matricNo: string; level: number; score: number; ts: number }
 export interface SubmitResult { ok: boolean; rank?: number; top: ScoreRow[] }
 
 const API = (import.meta.env.VITE_API_URL ?? '').replace(/\/$/, '');
 
 export async function submitScore(p: {
-  name: string; dept: string; level: number; score: number; graduated: boolean;
+  name: string; dept: string; matricNo: string; level: number; score: number; graduated: boolean;
 }): Promise<SubmitResult> {
   if (!API) return { ok: false, top: [] };
   try {
@@ -21,7 +21,7 @@ export async function submitScore(p: {
   }
 }
 
-export async function fetchTop(limit = 5): Promise<ScoreRow[]> {
+export async function fetchTop(limit = 20): Promise<ScoreRow[]> {
   if (!API) return [];
   try {
     const r = await fetch(`${API}/leaderboard?limit=${limit}`);
